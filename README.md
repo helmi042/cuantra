@@ -1,6 +1,6 @@
 # CUANTRA Personal Finance
 
-Next.js + TypeScript + Tailwind + Prisma + PostgreSQL personal finance tracker.
+Next.js + TypeScript + Tailwind + Prisma + MySQL personal finance tracker.
 
 ## Fitur inti (MVP)
 - Autentikasi (credentials + opsi OAuth Google)
@@ -15,7 +15,7 @@ npm install
 
 2) **Konfigurasi environment**  
 Buat `.env` berdasarkan `.env.example` lalu isi:
-- `DATABASE_URL` & `SHADOW_DATABASE_URL` (PostgreSQL)
+- `DATABASE_URL` & `SHADOW_DATABASE_URL` (MySQL)
 - `NEXTAUTH_SECRET`
 - `NEXTAUTH_URL` (contoh: `http://localhost:3000`)
 - `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET` (opsional)

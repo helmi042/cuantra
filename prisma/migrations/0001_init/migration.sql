@@ -1,61 +1,59 @@
--- Create enums
-CREATE TYPE "AccountType" AS ENUM ('CASH', 'BANK', 'EWALLET');
-CREATE TYPE "CategoryType" AS ENUM ('INCOME', 'EXPENSE');
-CREATE TYPE "TransactionType" AS ENUM ('INCOME', 'EXPENSE', 'TRANSFER');
+-- Create tables and enums for MySQL
+CREATE TABLE `User` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
+    `passwordHash` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `User_email_key`(`email`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Create tables
-CREATE TABLE "User" (
-    "id" TEXT PRIMARY KEY,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL UNIQUE,
-    "passwordHash" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+CREATE TABLE `Account` (
+    `id` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `type` ENUM('CASH', 'BANK', 'EWALLET') NOT NULL,
+    `balance` INTEGER NOT NULL DEFAULT 0,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `Account_userId_name_key`(`userId`, `name`),
+    INDEX `Account_userId_idx`(`userId`),
+    CONSTRAINT `Account_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE "Account" (
-    "id" TEXT PRIMARY KEY,
-    "userId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "type" "AccountType" NOT NULL,
-    "balance" INTEGER NOT NULL DEFAULT 0,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Account_userId_name_key" UNIQUE ("userId", "name")
-);
+CREATE TABLE `Category` (
+    `id` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `type` ENUM('INCOME', 'EXPENSE') NOT NULL,
+    `icon` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `Category_userId_name_type_key`(`userId`, `name`, `type`),
+    INDEX `Category_userId_idx`(`userId`),
+    CONSTRAINT `Category_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE "Category" (
-    "id" TEXT PRIMARY KEY,
-    "userId" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "type" "CategoryType" NOT NULL,
-    "icon" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Category_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Category_userId_name_type_key" UNIQUE ("userId", "name", "type")
-);
-
-CREATE TABLE "Transaction" (
-    "id" TEXT PRIMARY KEY,
-    "userId" TEXT NOT NULL,
-    "accountId" TEXT,
-    "categoryId" TEXT,
-    "type" "TransactionType" NOT NULL,
-    "amount" INTEGER NOT NULL,
-    "note" TEXT,
-    "date" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "fromAccountId" TEXT,
-    "toAccountId" TEXT,
-    CONSTRAINT "Transaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT "Transaction_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "Account"("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "Transaction_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "Transaction_fromAccountId_fkey" FOREIGN KEY ("fromAccountId") REFERENCES "Account"("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "Transaction_toAccountId_fkey" FOREIGN KEY ("toAccountId") REFERENCES "Account"("id") ON DELETE SET NULL ON UPDATE CASCADE
-);
-
--- Indexes
-CREATE INDEX "Account_userId_idx" ON "Account"("userId");
-CREATE INDEX "Category_userId_idx" ON "Category"("userId");
-CREATE INDEX "Transaction_userId_date_idx" ON "Transaction"("userId", "date");
-CREATE INDEX "Transaction_userId_accountId_idx" ON "Transaction"("userId", "accountId");
-CREATE INDEX "Transaction_userId_categoryId_idx" ON "Transaction"("userId", "categoryId");
+CREATE TABLE `Transaction` (
+    `id` VARCHAR(191) NOT NULL,
+    `userId` VARCHAR(191) NOT NULL,
+    `accountId` VARCHAR(191) NULL,
+    `categoryId` VARCHAR(191) NULL,
+    `type` ENUM('INCOME', 'EXPENSE', 'TRANSFER') NOT NULL,
+    `amount` INTEGER NOT NULL,
+    `note` VARCHAR(191) NULL,
+    `date` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `fromAccountId` VARCHAR(191) NULL,
+    `toAccountId` VARCHAR(191) NULL,
+    PRIMARY KEY (`id`),
+    INDEX `Transaction_userId_date_idx`(`userId`, `date`),
+    INDEX `Transaction_userId_accountId_idx`(`userId`, `accountId`),
+    INDEX `Transaction_userId_categoryId_idx`(`userId`, `categoryId`),
+    CONSTRAINT `Transaction_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `Transaction_accountId_fkey` FOREIGN KEY (`accountId`) REFERENCES `Account`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT `Transaction_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `Category`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT `Transaction_fromAccountId_fkey` FOREIGN KEY (`fromAccountId`) REFERENCES `Account`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT `Transaction_toAccountId_fkey` FOREIGN KEY (`toAccountId`) REFERENCES `Account`(`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
