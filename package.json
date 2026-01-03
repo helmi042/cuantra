@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "5.0.2",
-    "@types/node": "22.9.3",
+    "@types/node": "^22.19.3",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "autoprefixer": "10.4.20",
@@ -31,10 +31,11 @@
     "postcss": "8.4.49",
     "prisma": "5.20.0",
     "tailwindcss": "3.4.15",
-    "ts-node": "10.9.2",
-    "typescript": "5.6.3"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"
   }
 }
